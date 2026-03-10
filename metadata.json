@@ -1,0 +1,5 @@
+{
+  "name": "Itemap",
+  "description": "Catálogo guiado conectando usuários ao estoque físico mais próximo com IA e geolocalização.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"]
+}

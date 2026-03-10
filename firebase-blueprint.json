@@ -1,0 +1,79 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile with reputation and search history.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "reputation": { "type": "number" },
+        "searchHistory": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["uid", "displayName"]
+    },
+    "Store": {
+      "title": "Store",
+      "description": "Physical store location and metadata.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "object", "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        "googlePlaceId": { "type": "string" },
+        "rating": { "type": "number" },
+        "isVerified": { "type": "boolean" },
+        "ownerUid": { "type": "string" }
+      },
+      "required": ["id", "name", "location"]
+    },
+    "Item": {
+      "title": "Item",
+      "description": "Global item catalog entry.",
+      "type": "object",
+      "properties": {
+        "sku": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["sku", "name"]
+    },
+    "Inventory": {
+      "title": "Inventory Record",
+      "description": "Stock level of an item at a specific store.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "sku": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "number" },
+        "lastUpdated": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["Disponível", "Últimas unidades", "Verificar quantidade"] }
+      },
+      "required": ["storeId", "sku", "price", "quantity"]
+    },
+    "Feedback": {
+      "title": "Stock Feedback",
+      "description": "User feedback about item availability at a store.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "storeId": { "type": "string" },
+        "sku": { "type": "string" },
+        "wasAvailable": { "type": "boolean" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "storeId", "sku", "wasAvailable"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/stores/{storeId}": { "schema": "Store", "description": "Store locations" },
+    "/items/{sku}": { "schema": "Item", "description": "Global item catalog" },
+    "/inventory/{inventoryId}": { "schema": "Inventory", "description": "Store inventory records" },
+    "/feedbacks/{feedbackId}": { "schema": "Feedback", "description": "User stock verification feedback" }
+  }
+}

@@ -1,0 +1,112 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Fields: uid (string), displayName (string), email (string), reputation (number), searchHistory (list)
+    //
+    // Collection: stores
+    // Fields: id (string), name (string), location (map: lat, lng), googlePlaceId (string), rating (number), isVerified (bool), ownerUid (string)
+    //
+    // Collection: items
+    // Fields: sku (string), name (string), category (string), description (string), imageUrl (string)
+    //
+    // Collection: inventory
+    // Fields: storeId (string), sku (string), price (number), quantity (number), lastUpdated (string), status (string)
+    //
+    // Collection: feedbacks
+    // Fields: userId (string), storeId (string), sku (string), wasAvailable (bool), timestamp (timestamp)
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "martinhareinhardt@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'displayName']) &&
+             data.uid is string && data.uid.size() < 128 &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
+             (!('email' in data) || (data.email is string && data.email.size() < 256)) &&
+             (!('reputation' in data) || data.reputation is number);
+    }
+
+    function isValidStore(data) {
+      return data.keys().hasAll(['name', 'location']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.location is map && data.location.lat is number && data.location.lng is number &&
+             (!('googlePlaceId' in data) || (data.googlePlaceId is string && data.googlePlaceId.size() < 256)) &&
+             (!('rating' in data) || data.rating is number) &&
+             (!('isVerified' in data) || data.isVerified is bool) &&
+             (!('ownerUid' in data) || (data.ownerUid is string && data.ownerUid.size() < 128));
+    }
+
+    function isValidInventory(data) {
+      return data.keys().hasAll(['storeId', 'sku', 'price']) &&
+             data.storeId is string && data.storeId.size() < 128 &&
+             data.sku is string && data.sku.size() < 128 &&
+             data.price is number && data.price >= 0 &&
+             (!('quantity' in data) || data.quantity is number) &&
+             (!('status' in data) || (data.status is string && data.status.size() < 100));
+    }
+
+    function isValidFeedback(data) {
+      return data.keys().hasAll(['userId', 'storeId', 'sku', 'wasAvailable']) &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.storeId is string && data.sku is string &&
+             data.wasAvailable is bool;
+    }
+
+    // Rules
+    match /users/{userId} {
+      // PII Protection: Only the owner can read their own profile if it contains email
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                    request.resource.data.uid == resource.data.uid;
+    }
+
+    match /stores/{storeId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidStore(request.resource.data) && 
+                    request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                    (resource.data.ownerUid == request.auth.uid || isAdmin()) && 
+                    isValidStore(request.resource.data) &&
+                    request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+
+    match /items/{sku} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /inventory/{inventoryId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidInventory(request.resource.data) && 
+                    get(/databases/$(database)/documents/stores/$(request.resource.data.storeId)).data.ownerUid == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                    get(/databases/$(database)/documents/stores/$(resource.data.storeId)).data.ownerUid == request.auth.uid &&
+                    isValidInventory(request.resource.data) &&
+                    request.resource.data.storeId == resource.data.storeId;
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidFeedback(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+  }
+}
