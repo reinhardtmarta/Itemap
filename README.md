@@ -1,9 +1,14 @@
 # ITEMAP: Geosynchronous Inventory Indexing Protocol (GIIP)
 
 Architect: Marta Reinhardt
+
 Framework: Matter Localization & Logical Substitution
+
 Status: Architectural Specification v1.0
+https://doi.org/10.5281/zenodo.18943916
+
 License: GNU GPL v3
+
 Commercial Rights: Subject to 5% Perpetual Royalty Clause (Section 4)
 
 ## 1. Abstract
