@@ -6,7 +6,7 @@ Status: Architectural Specification v1.0
 ## 1. Abstract
 The Itemap protocol is a decentralized intelligence layer designed to map physical matter in real-time. It solves the latency between consumer intent and physical possession by treating urban centers as a Live Distributed Warehouse.
 
-## 2. System Core (The Real Machine)
+## 2. System Core 
 2.1. The 20km Sovereign Radius
 The system operates under a strict Spatial Constraint Filter. Any inventory node beyond the 20km threshold is automatically rerouted or flagged for Attribute Similarity Analysis (ASA).
 2.2. ASA Protocol (Logical Substitution)
