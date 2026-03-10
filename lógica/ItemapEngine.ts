@@ -1,3 +1,10 @@
+/**
+ * ITEMAP PROTOCOL v1.0
+ * Logic: 20km Sovereign Radius | ASA Substitution | 5% Royalty Node
+ * License: GNU GPL v3
+ * (c) 2026 Author: [Marta]
+ */
+
 -- ITEMAP CLOUD SCHEMA v1.0
 -- Este script define a estrutura da "Matéria Agrupada"
 
