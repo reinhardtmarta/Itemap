@@ -1,7 +1,10 @@
 # ITEMAP: Geosynchronous Inventory Indexing Protocol (GIIP)
+
 Architect: Marta Reinhardt
 Framework: Matter Localization & Logical Substitution
 Status: Architectural Specification v1.0
+License: GNU GPL v3
+Commercial Rights: Subject to 5% Perpetual Royalty Clause (Section 4)
 
 ## 1. Abstract
 The Itemap protocol is a decentralized intelligence layer designed to map physical matter in real-time. It solves the latency between consumer intent and physical possession by treating urban centers as a Live Distributed Warehouse.
